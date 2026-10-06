@@ -227,7 +227,7 @@
       transition: all 0.2s ease;
     }
 
-    /* Аватарки и логотипы */
+    /* Аватарки */
     .avatar-wrapper {
       width: 44px;
       height: 44px;
@@ -239,12 +239,24 @@
       background: #1e293b;
       border: 1.5px solid var(--card-border);
       flex-shrink: 0;
+      transition: transform 0.15s ease, border-color 0.15s ease;
+    }
+
+    .avatar-wrapper.clickable {
+      cursor: pointer;
+    }
+
+    .avatar-wrapper.clickable:hover {
+      transform: scale(1.08);
+      border-color: var(--accent);
+      box-shadow: 0 0 10px var(--accent-glow);
     }
 
     .avatar-img {
       width: 100%;
       height: 100%;
       object-fit: cover;
+      display: block;
     }
 
     .avatar-initials {
@@ -252,13 +264,14 @@
       font-size: 0.95rem;
       color: var(--accent);
       text-transform: uppercase;
+      user-select: none;
     }
 
     .partner-card .avatar-initials {
       color: var(--partner-accent);
     }
 
-    /* Мобильные карточки */
+    /* Карточки для мобильных */
     .cards-container {
       display: grid;
       grid-template-columns: 1fr;
@@ -382,7 +395,7 @@
       color: #f87171;
     }
 
-    /* Десктоп-таблица */
+    /* Таблица для ПК */
     .table-container {
       display: none;
       background: var(--card-bg);
@@ -529,10 +542,9 @@
     }
 
     .photo-preview {
-      width: 50px;
-      height: 50px;
+      width: 54px;
+      height: 54px;
       border-radius: 50%;
-      object-fit: cover;
       background: #1e293b;
       display: flex;
       align-items: center;
@@ -540,6 +552,7 @@
       font-size: 1.3rem;
       flex-shrink: 0;
       overflow: hidden;
+      border: 1px solid var(--card-border);
     }
 
     .photo-preview img {
@@ -559,13 +572,15 @@
       background: #1e293b;
       border: 1px solid var(--card-border);
       color: var(--accent);
-      padding: 6px 12px;
+      padding: 7px 12px;
       border-radius: 6px;
       font-size: 0.82rem;
       cursor: pointer;
       text-align: center;
       font-weight: 600;
       width: fit-content;
+      user-select: none;
+      display: inline-block;
     }
 
     .btn-remove-photo {
@@ -602,6 +617,64 @@
       padding: 9px 16px;
       border-radius: 8px;
       font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* Просмотр увеличенного фото (Lightbox) */
+    .image-viewer-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.88);
+      backdrop-filter: blur(6px);
+      z-index: 10000;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      flex-direction: column;
+    }
+
+    .image-viewer-content {
+      position: relative;
+      max-width: 90vw;
+      max-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .image-viewer-img {
+      max-width: 100%;
+      max-height: 72vh;
+      border-radius: 12px;
+      border: 2px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+      object-fit: contain;
+    }
+
+    .image-viewer-caption {
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: 600;
+      text-align: center;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+    }
+
+    .image-viewer-close {
+      position: absolute;
+      top: -42px;
+      right: 0;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
       cursor: pointer;
     }
 
@@ -668,23 +741,23 @@
     </table>
   </div>
 
-  <!-- Мобильные карточки -->
+  <!-- Карточки для телефона -->
   <div class="cards-container" id="cardsContainer"></div>
   <div class="empty-state" id="emptyState" style="display: none;">По вашему запросу ничего не найдено</div>
 </div>
 
-<!-- Модальное окно (Добавление / Редактирование с фото) -->
+<!-- Модальное окно (Добавление / Редактирование) -->
 <div class="modal-overlay" id="contactModal">
   <div class="modal-card">
     <div class="modal-title" id="modalTitle">Добавить контакт</div>
     <input type="hidden" id="editContactId">
 
-    <!-- Загрузка фото / логотипа -->
+    <!-- Загрузка фото -->
     <div class="photo-upload-section">
       <div class="photo-preview" id="photoPreview">📷</div>
       <div class="photo-controls">
         <label class="btn-file-upload">
-          📁 Выбрать фото / логотип
+          📁 Загрузить фото
           <input type="file" id="photoFileInput" accept="image/*" style="display: none;" onchange="handlePhotoUpload(event)">
         </label>
         <button type="button" class="btn-remove-photo" id="btnRemovePhoto" style="display: none;" onclick="removeCurrentPhoto()">Удалить фото</button>
@@ -704,7 +777,17 @@
   </div>
 </div>
 
+<!-- Просмотр увеличенного фото -->
+<div class="image-viewer-overlay" id="imageViewer" onclick="closeImageViewer()">
+  <div class="image-viewer-content" onclick="event.stopPropagation()">
+    <button class="image-viewer-close" onclick="closeImageViewer()">✕</button>
+    <img id="viewerImg" class="image-viewer-img" src="" alt="Фото">
+    <div id="viewerCaption" class="image-viewer-caption"></div>
+  </div>
+</div>
+
 <script>
+// Встроенная база 79 заводских сотрудников
 const baseStaffData = [
   { id: 1, name: "Антонников Алексей Владимирович", role: "директор", dept: "Управление (констр, технолог)", phone: "+375 (33) 307-30-74", tel: "+375333073074", category: "staff", photo: "" },
   { id: 2, name: "Арцыменя Владимир Викторович", role: "инженер по подготовке производства", dept: "Коммерческий документ", phone: "+375 (29) 724-04-09", tel: "+375297240409", category: "staff", photo: "" },
@@ -809,7 +892,11 @@ function getStoredContacts() {
 }
 
 function saveContactsToStorage(list) {
-  localStorage.setItem('phonebook_all_contacts', JSON.stringify(list));
+  try {
+    localStorage.setItem('phonebook_all_contacts', JSON.stringify(list));
+  } catch(e) {
+    alert("Память браузера переполнена! Рекомендуется удалить лишние большие фото.");
+  }
 }
 
 let activeCategory = 'all';
@@ -823,6 +910,9 @@ const tableBody = document.getElementById('tableBody');
 const cardsContainer = document.getElementById('cardsContainer');
 const emptyState = document.getElementById('emptyState');
 const contactModal = document.getElementById('contactModal');
+const imageViewer = document.getElementById('imageViewer');
+const viewerImg = document.getElementById('viewerImg');
+const viewerCaption = document.getElementById('viewerCaption');
 
 function getInitials(name) {
   if (!name) return '?';
@@ -834,7 +924,7 @@ function getInitials(name) {
 function renderAvatar(item, size = 44) {
   if (item.photo) {
     return `
-      <div class="avatar-wrapper" style="width: ${size}px; height: ${size}px;">
+      <div class="avatar-wrapper clickable" style="width: ${size}px; height: ${size}px;" onclick="openImageViewerById(${item.id})" title="Нажмите для увеличения">
         <img src="${item.photo}" class="avatar-img" alt="${item.name}">
       </div>
     `;
@@ -845,6 +935,28 @@ function renderAvatar(item, size = 44) {
     </div>
   `;
 }
+
+function openImageViewerById(id) {
+  const list = getStoredContacts();
+  const item = list.find(c => c.id === id);
+  if (!item || !item.photo) return;
+  viewerImg.src = item.photo;
+  viewerCaption.textContent = item.name;
+  imageViewer.style.display = 'flex';
+}
+
+function closeImageViewer() {
+  imageViewer.style.display = 'none';
+  viewerImg.src = '';
+  viewerCaption.textContent = '';
+}
+
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    closeImageViewer();
+    closeContactModal();
+  }
+});
 
 function formatPhoneNumber(raw) {
   const d = raw.replace(/\D/g, '');
@@ -894,44 +1006,57 @@ function populateDeptDropdown() {
   });
 }
 
-// Загрузка и автоматическое сжатие фото перед сохранением в Base64
+// ПРЯМАЯ И БЕЗОПАСНАЯ ЗАГРУЗКА ФОТО
 function handlePhotoUpload(event) {
-  const file = event.target.files[0];
+  const file = event.target.files && event.target.files[0];
   if (!file) return;
 
+  const preview = document.getElementById('photoPreview');
+  preview.innerHTML = '⏳';
+
   const reader = new FileReader();
+  reader.onerror = function() {
+    alert("Ошибка при выборе файла.");
+    preview.innerHTML = '📷';
+  };
+
   reader.onload = function(e) {
-    const img = new Image();
-    img.onload = function() {
-      // Сжимаем фото до 200x200 px для экономии места в памяти
-      const canvas = document.createElement('canvas');
+    const tempImg = new Image();
+    tempImg.onerror = function() {
+      alert("Не удалось декодировать изображение.");
+      preview.innerHTML = '📷';
+    };
+    tempImg.onload = function() {
+      // Сжимаем пропорционально до легкого разрешения (до 200px)
       const maxDim = 200;
-      let w = img.width;
-      let h = img.height;
+      let w = tempImg.width;
+      let h = tempImg.height;
 
       if (w > h) {
         if (w > maxDim) {
-          h *= maxDim / w;
+          h = Math.round(h * (maxDim / w));
           w = maxDim;
         }
       } else {
         if (h > maxDim) {
-          w *= maxDim / h;
+          w = Math.round(w * (maxDim / h));
           h = maxDim;
         }
       }
 
+      const canvas = document.createElement('canvas');
       canvas.width = w;
       canvas.height = h;
       const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0, w, h);
+      ctx.drawImage(tempImg, 0, 0, w, h);
 
-      const base64 = canvas.toDataURL('image/jpeg', 0.82);
-      setModalPhoto(base64);
+      // Получаем чистый base64
+      const compressedData = canvas.toDataURL('image/jpeg', 0.82);
+      setModalPhoto(compressedData);
     };
-    img.src = e.target.result;
+    tempImg.src = e.target.result;
   };
-  reader.readAsText(file); // Trigger
+
   reader.readAsDataURL(file);
 }
 
@@ -961,7 +1086,7 @@ function openContactModal() {
   document.getElementById('contactRole').value = activeCategory === 'partners' ? 'Поставщик / Клиент' : '';
   document.getElementById('contactDept').value = '';
   document.getElementById('contactPhone').value = '';
-  setModalPhoto('');
+  removeCurrentPhoto();
   contactModal.style.display = 'flex';
   document.getElementById('contactName').focus();
 }
@@ -1066,7 +1191,7 @@ function importData(event) {
       populateDeptDropdown();
       render();
     } catch (err) {
-      alert("Ошибка при чтении файла. Убедитесь, что выбран корректный файл JSON.");
+      alert("Ошибка при чтении файла JSON.");
     }
   };
   reader.readAsText(file);
@@ -1200,7 +1325,7 @@ function render() {
           <a class="phone-btn" href="tel:${item.tel}">
             📞 ${item.phone}
           </a>
-          <button class="edit-btn" onclick="editContact(${item.id})" title="Редактировать">✏️</button>
+          <button class="edit-btn" onclick="editContact(${item.id})" title="Редактировать">✏️️</button>
           <button class="del-btn" onclick="deleteContact(${item.id})" title="Удалить">🗑</button>
         </div>
       </div>
