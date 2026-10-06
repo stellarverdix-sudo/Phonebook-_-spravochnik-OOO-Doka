@@ -1,25 +1,6 @@
-<!-- File: gemini-code-1790620630343.html -->
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-
-    <!-- Intercept Console Output for Pro Studio View -->
-    <script>
-      (function(){
-        function send(type, args) {
-          try {
-            const msg = Array.from(args).map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ');
-            window.parent.postMessage({ type: 'CONSOLE_LOG', level: type, text: msg }, '*');
-          } catch(e){}
-        }
-        const oLog = console.log, oErr = console.error, oWarn = console.warn;
-        console.log = function(){ send('info', arguments); oLog.apply(console, arguments); };
-        console.error = function(){ send('error', arguments); oErr.apply(console, arguments); };
-        console.warn = function(){ send('warn', arguments); oWarn.apply(console, arguments); };
-        window.onerror = function(msg, url, line){ send('error', ['Error [L:' + line + ']: ' + msg]); return false; };
-      })();
-    </script>
-            
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Телефонный справочник</title>
@@ -246,75 +227,38 @@
       transition: all 0.2s ease;
     }
 
-    /* Модальное окно */
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0, 0, 0, 0.75);
-      backdrop-filter: blur(4px);
-      z-index: 999;
-      justify-content: center;
+    /* Аватарки и логотипы */
+    .avatar-wrapper {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      overflow: hidden;
+      display: flex;
       align-items: center;
-      padding: 16px;
+      justify-content: center;
+      background: #1e293b;
+      border: 1.5px solid var(--card-border);
+      flex-shrink: 0;
     }
 
-    .modal-card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: var(--radius);
-      padding: 20px;
+    .avatar-img {
       width: 100%;
-      max-width: 460px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
+      height: 100%;
+      object-fit: cover;
     }
 
-    .modal-title {
-      font-size: 1.1rem;
+    .avatar-initials {
       font-weight: 700;
-      color: #fff;
-    }
-
-    .modal-input {
-      width: 100%;
-      padding: 10px 12px;
-      border-radius: 8px;
-      border: 1px solid var(--card-border);
-      background: #0b1320;
-      color: var(--text);
       font-size: 0.95rem;
-      outline: none;
+      color: var(--accent);
+      text-transform: uppercase;
     }
 
-    .modal-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-      margin-top: 10px;
+    .partner-card .avatar-initials {
+      color: var(--partner-accent);
     }
 
-    .btn-secondary {
-      background: transparent;
-      border: 1px solid var(--card-border);
-      color: var(--text-muted);
-      padding: 9px 14px;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-
-    .btn-primary {
-      background: var(--accent);
-      border: none;
-      color: #04121e;
-      padding: 9px 16px;
-      border-radius: 8px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    /* Карточки */
+    /* Мобильные карточки */
     .cards-container {
       display: grid;
       grid-template-columns: 1fr;
@@ -334,7 +278,7 @@
       padding: 16px;
       display: flex;
       flex-direction: column;
-      gap: 7px;
+      gap: 8px;
     }
 
     .contact-card.partner-card {
@@ -343,29 +287,44 @@
 
     .card-top {
       display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      gap: 8px;
+      align-items: center;
+      gap: 12px;
     }
 
-    .card-id {
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: var(--text-muted);
-      background: rgba(255, 255, 255, 0.05);
-      padding: 2px 7px;
-      border-radius: 4px;
+    .card-meta {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+
+    .card-name-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 6px;
     }
 
     .card-name {
-      font-size: 1.05rem;
+      font-size: 1rem;
       font-weight: 600;
       color: #fff;
-      flex: 1;
+      word-break: break-word;
+    }
+
+    .card-id {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.05);
+      padding: 1px 6px;
+      border-radius: 4px;
+      flex-shrink: 0;
     }
 
     .card-role {
-      font-size: 0.88rem;
+      font-size: 0.85rem;
       color: var(--accent);
       font-weight: 500;
     }
@@ -381,7 +340,7 @@
     }
 
     .card-phone-wrap {
-      margin-top: 6px;
+      margin-top: 4px;
       padding-top: 10px;
       border-top: 1px solid rgba(255, 255, 255, 0.06);
       display: flex;
@@ -404,16 +363,26 @@
       font-size: 0.95rem;
     }
 
-    .del-btn {
-      background: rgba(239, 68, 68, 0.15);
-      border: 1px solid rgba(239, 68, 68, 0.3);
-      color: #f87171;
+    .edit-btn, .del-btn {
+      background: rgba(56, 189, 248, 0.15);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      color: var(--accent);
       padding: 0 12px;
       border-radius: 8px;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.95rem;
     }
 
-    /* Таблица для ПК */
+    .del-btn {
+      background: rgba(239, 68, 68, 0.15);
+      border-color: rgba(239, 68, 68, 0.3);
+      color: #f87171;
+    }
+
+    /* Десктоп-таблица */
     .table-container {
       display: none;
       background: var(--card-bg);
@@ -452,7 +421,7 @@
     }
 
     td {
-      padding: 12px 16px;
+      padding: 10px 16px;
       font-size: 0.9rem;
       border-bottom: 1px solid rgba(255, 255, 255, 0.04);
       vertical-align: middle;
@@ -462,6 +431,12 @@
       background: var(--hover-row);
     }
 
+    .table-user-cell {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
     .name-cell {
       font-weight: 600;
       color: #fff;
@@ -469,9 +444,9 @@
 
     .tag-badge {
       display: inline-block;
-      padding: 3px 8px;
+      padding: 2px 7px;
       border-radius: 4px;
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       font-weight: 600;
       margin-left: 6px;
     }
@@ -493,6 +468,143 @@
       white-space: nowrap;
     }
 
+    .table-actions {
+      display: flex;
+      gap: 6px;
+      justify-content: flex-end;
+    }
+
+    /* Модальное окно */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(4px);
+      z-index: 999;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+    }
+
+    .modal-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 20px;
+      width: 100%;
+      max-width: 480px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .modal-input {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--card-border);
+      background: #0b1320;
+      color: var(--text);
+      font-size: 0.95rem;
+      outline: none;
+    }
+
+    .photo-upload-section {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #0b1320;
+      border: 1px dashed var(--card-border);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+
+    .photo-preview {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      object-fit: cover;
+      background: #1e293b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    .photo-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .photo-controls {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .btn-file-upload {
+      background: #1e293b;
+      border: 1px solid var(--card-border);
+      color: var(--accent);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      cursor: pointer;
+      text-align: center;
+      font-weight: 600;
+      width: fit-content;
+    }
+
+    .btn-remove-photo {
+      background: none;
+      border: none;
+      color: #f87171;
+      font-size: 0.78rem;
+      cursor: pointer;
+      text-align: left;
+      padding: 0;
+      width: fit-content;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      padding: 9px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      border: none;
+      color: #04121e;
+      padding: 9px 16px;
+      border-radius: 8px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
     .empty-state {
       text-align: center;
       padding: 40px 20px;
@@ -503,7 +615,6 @@
       border: 1px solid var(--card-border);
     }
   </style>
-  <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body>
 
@@ -514,7 +625,6 @@
       <div class="badge-count" id="countBadge">Всего: 0</div>
     </div>
 
-    <!-- Вкладки и кнопки экспорта/импорта базы данных -->
     <div class="tabs-bar">
       <button class="tab-btn active" id="tabEmployees" onclick="switchCategory('all')">👥 Все</button>
       <button class="tab-btn" id="tabStaff" onclick="switchCategory('staff')">🏭 Завод</button>
@@ -523,7 +633,7 @@
       <div class="actions-group">
         <button class="btn-action" onclick="exportData()" title="Скачать данные контактов">💾 Скачать базу</button>
         <button class="btn-action" onclick="document.getElementById('importFile').click()" title="Восстановить базу из файла">📥 Загрузить базу</button>
-        <button class="btn-action btn-add" onclick="openAddModal()">➕ Добавить</button>
+        <button class="btn-action btn-add" onclick="openContactModal()">➕ Добавить</button>
       </div>
     </div>
 
@@ -546,119 +656,135 @@
     <table>
       <thead>
         <tr>
-          <th onclick="handleSort('id')" style="width: 60px;">№ <span id="sort-id">↕</span></th>
+          <th onclick="handleSort('id')" style="width: 50px;">№ <span id="sort-id">↕</span></th>
           <th onclick="handleSort('name')">ФИО / Контакт <span id="sort-name">↕</span></th>
           <th onclick="handleSort('role')">Должность / Тип <span id="sort-role">↕</span></th>
           <th onclick="handleSort('dept')">Подразделение / Адрес <span id="sort-dept">↕</span></th>
           <th onclick="handleSort('phone')">Телефон <span id="sort-phone">↕</span></th>
-          <th style="width: 40px;"></th>
+          <th style="width: 80px; text-align: right;">Действия</th>
         </tr>
       </thead>
       <tbody id="tableBody"></tbody>
     </table>
   </div>
 
-  <!-- Карточки для телефона -->
+  <!-- Мобильные карточки -->
   <div class="cards-container" id="cardsContainer"></div>
   <div class="empty-state" id="emptyState" style="display: none;">По вашему запросу ничего не найдено</div>
 </div>
 
-<!-- Модальное окно добавления контакта -->
-<div class="modal-overlay" id="addModal">
+<!-- Модальное окно (Добавление / Редактирование с фото) -->
+<div class="modal-overlay" id="contactModal">
   <div class="modal-card">
-    <div class="modal-title">Добавить поставщика / потребителя</div>
-    <input type="text" class="modal-input" id="newContactName" placeholder="ФИО или Организация (напр. Вадим)">
-    <input type="text" class="modal-input" id="newContactRole" placeholder="Тип (Поставщик / Потребитель)">
-    <input type="text" class="modal-input" id="newContactDept" placeholder="Адрес / Примечание (напр. ул. Бадака д. 29)">
-    <input type="text" class="modal-input" id="newContactPhone" placeholder="Телефон (+375298276474)">
+    <div class="modal-title" id="modalTitle">Добавить контакт</div>
+    <input type="hidden" id="editContactId">
+
+    <!-- Загрузка фото / логотипа -->
+    <div class="photo-upload-section">
+      <div class="photo-preview" id="photoPreview">📷</div>
+      <div class="photo-controls">
+        <label class="btn-file-upload">
+          📁 Выбрать фото / логотип
+          <input type="file" id="photoFileInput" accept="image/*" style="display: none;" onchange="handlePhotoUpload(event)">
+        </label>
+        <button type="button" class="btn-remove-photo" id="btnRemovePhoto" style="display: none;" onclick="removeCurrentPhoto()">Удалить фото</button>
+      </div>
+    </div>
+    <input type="hidden" id="photoBase64">
+
+    <input type="text" class="modal-input" id="contactName" placeholder="ФИО или Организация (напр. Вадим)">
+    <input type="text" class="modal-input" id="contactRole" placeholder="Должность или тип (напр. Поставщик / Клиент)">
+    <input type="text" class="modal-input" id="contactDept" placeholder="Подразделение или адрес (напр. ул. Бадака д. 29)">
+    <input type="text" class="modal-input" id="contactPhone" placeholder="Телефон (+375298276474)">
+
     <div class="modal-actions">
-      <button class="btn-secondary" onclick="closeAddModal()">Отмена</button>
-      <button class="btn-primary" onclick="saveNewPartner()">Сохранить</button>
+      <button class="btn-secondary" onclick="closeContactModal()">Отмена</button>
+      <button class="btn-primary" onclick="saveContact()">Сохранить</button>
     </div>
   </div>
 </div>
 
 <script>
-const staffData = [
-  { id: 1, name: "Антонников Алексей Владимирович", role: "директор", dept: "Управление (констр, технолог)", phone: "+375 (33) 307-30-74", tel: "+375333073074", category: "staff" },
-  { id: 2, name: "Арцыменя Владимир Викторович", role: "инженер по подготовке производства", dept: "Коммерческий документ", phone: "+375 (29) 724-04-09", tel: "+375297240409", category: "staff" },
-  { id: 3, name: "Аскальдович Дмитрий Юрьевич", role: "слесарь по ремонту боевых и специальных машин", dept: "Сборочно-слесарный участок", phone: "+375 (29) 827-81-57", tel: "+375298278157", category: "staff" },
-  { id: 4, name: "Афанасьев Павел Сергеевич", role: "оператор станков с ЧПУ", dept: "Лазерный участок", phone: "+375 (29) 290-23-94", tel: "+375292902394", category: "staff" },
-  { id: 5, name: "Бабко Дмитрий Иванович", role: "электрогазосварщик", dept: "Сварочный участок", phone: "+375 (29) 795-16-22", tel: "+375297951622", category: "staff" },
-  { id: 6, name: "Бакунович Сергей Викторович", role: "пескоструйщик", dept: "Участок пескоструйки", phone: "+375 (29) 823-32-93", tel: "+375298233293", category: "staff" },
-  { id: 7, name: "Белькович Дмитрий Андреевич", role: "электрогазосварщик", dept: "Сварочный участок", phone: "+375 (29) 582-44-60", tel: "+375295824460", category: "staff" },
-  { id: 8, name: "Билявский Владимир Владимирович", role: "оператор станков с ЧПУ", dept: "Лазерный участок", phone: "+375 (33) 692-70-54", tel: "+375336927054", category: "staff" },
-  { id: 9, name: "Бовкало Александр Владимирович", role: "слесарь по ремонту боевых и специальных машин", dept: "Сборочно-слесарный участок", phone: "+375 (29) 583-97-95", tel: "+375295839795", category: "staff" },
-  { id: 10, name: "Будаев Борис Юрьевич", role: "помощник руководителя", dept: "Управление (констр, технолог)", phone: "+375 (29) 661-62-88", tel: "+375296616288", category: "staff" },
-  { id: 11, name: "Бушков Максим Николаевич", role: "мастер участка сварочных работ", dept: "Сварочный участок", phone: "+375 (29) 586-54-03", tel: "+375295865403", category: "staff" },
-  { id: 12, name: "Быченок Светлана Федоровна", role: "маляр", dept: "Участок покраски", phone: "+375 (29) 797-41-25", tel: "+375297974125", category: "staff" },
-  { id: 13, name: "Бычёк Евгений Владимирович", role: "инженер-технолог", dept: "Лазерный участок", phone: "+375 (29) 529-05-92", tel: "+375295290592", category: "staff" },
-  { id: 14, name: "Бычков Сергей Анатольевич", role: "слесарь по ремонту боевых и специальных машин", dept: "Участок изготовления кунгов", phone: "+375 (29) 805-39-09", tel: "+375298053909", category: "staff" },
-  { id: 15, name: "Василевич Дмитрий Валерьевич", role: "токарь", dept: "Токарный участок", phone: "+375 (29) 224-72-16", tel: "+375292247216", category: "staff" },
-  { id: 16, name: "Витко Тамара Владимировна", role: "сторож", dept: "Гать", phone: "+375 (29) 824-41-59", tel: "+375298244159", category: "staff" },
-  { id: 17, name: "Воронко Сергей Михайлович", role: "пескоструйщик", dept: "Участок пескоструйки", phone: "+375 (29) 223-45-74", tel: "+375292234574", category: "staff" },
-  { id: 18, name: "Гармашук Олег Юрьевич", role: "электрогазосварщик", dept: "Сварочный участок", phone: "+375 (44) 561-68-32", tel: "+375445616832", category: "staff" },
-  { id: 19, name: "Данильчик Егор Викторович", role: "слесарь по ремонту боевых и специальных машин", dept: "Участок изготовления кунгов", phone: "+375 (29) 200-33-95", tel: "+375292003395", category: "staff" },
-  { id: 20, name: "Даной Федор Николаевич", role: "электрогазосварщик", dept: "Сварочный участок", phone: "+375 (33) 608-34-86", tel: "+375336083486", category: "staff" },
-  { id: 21, name: "Дердюк Сергей Николаевич", role: "заместитель директора по организации производства", dept: "Управление (констр, технолог)", phone: "+375 (29) 651-35-62", tel: "+375296513562", category: "staff" },
-  { id: 22, name: "Дердюк Татьяна Игоревна", role: "художник-конструктор", dept: "Управление (констр, технолог)", phone: "+375 (29) 132-55-82", tel: "+375291325582", category: "staff" },
-  { id: 23, name: "Домаш Сергей Борисович", role: "слесарь по ремонту боевых и специальных машин", dept: "Сборочно-слесарный участок", phone: "+375 (25) 902-17-49", tel: "+375259021749", category: "staff" },
-  { id: 24, name: "Зайко Сергей Константинович", role: "каменщик", dept: "Строители", phone: "+375 (29) 725-69-38", tel: "+375297256938", category: "staff" },
-  { id: 25, name: "Иванов Александр Евгеньевич", role: "слесарь по ремонту боевых и специальных машин", dept: "Сборочно-слесарный участок", phone: "+375 (29) 580-11-45", tel: "+375295801145", category: "staff" },
-  { id: 26, name: "Казак Иван Валерьевич", role: "маляр", dept: "Участок покраски", phone: "+375 (33) 355-96-98", tel: "+375333559698", category: "staff" },
-  { id: 27, name: "Калюша Юрий Константинович", role: "каменщик", dept: "Строители", phone: "+375 (29) 800-22-59", tel: "+375298002259", category: "staff" },
-  { id: 28, name: "Калько Наталья Сергеевна", role: "специалист по кадрам", dept: "Бухгалтерия, Кадры, Юридический", phone: "+375 (29) 596-55-59", tel: "+375295965559", category: "staff" },
-  { id: 29, name: "Касач Анатолий Генадьевич", role: "мастер контрольный", dept: "Сборочно-слесарный участок", phone: "+375 (33) 607-90-37", tel: "+375336079037", category: "staff" },
-  { id: 30, name: "Киб Сергей Викторович", role: "мастер участка газозарядных машин", dept: "ОТК", phone: "+375 (29) 895-89-41", tel: "+375298958941", category: "staff" },
-  { id: 31, name: "Коваленко Юлия Николаевна", role: "маляр", dept: "Участок покраски", phone: "+375 (33) 382-63-91", tel: "+375333826391", category: "staff" },
-  { id: 32, name: "Ковецкий Андрей Павлович", role: "электрогазосварщик", dept: "Сварочный участок", phone: "+375 (29) 207-69-34", tel: "+375292076934", category: "staff" },
-  { id: 33, name: "Козак Елена Михайловна", role: "главный бухгалтер", dept: "Бухгалтерия, Кадры, Юридический", phone: "+375 (29) 729-61-23", tel: "+375297296123", category: "staff" },
-  { id: 34, name: "Колис Григорий Дмитриевич", role: "сторож", dept: "Гать", phone: "+375 (29) 798-38-02", tel: "+375297983802", category: "staff" },
-  { id: 35, name: "Кологрив Анатолий Васильевич", role: "первый заместитель директора", dept: "Управление (констр, технолог)", phone: "+375 (29) 642-02-35", tel: "+375296420235", category: "staff" },
-  { id: 36, name: "Кондрашов Игорь Викторович", role: "инженер-конструктор", dept: "Конструкторский отдел", phone: "+375 (29) 794-71-16", tel: "+375297947116", category: "staff" },
-  { id: 37, name: "Кондрашова Марина Васильевна", role: "инженер-конструктор", dept: "Конструкторский отдел", phone: "+375 (29) 823-21-53", tel: "+375298232153", category: "staff" },
-  { id: 38, name: "Кононович Иван Александрович", role: "инженер-конструктор", dept: "Конструкторский отдел", phone: "+375 (29) 526-97-12", tel: "+375295269712", category: "staff" },
-  { id: 39, name: "Корза Евгений Владимирович", role: "оператор станков с ЧПУ", dept: "Лазерный участок", phone: "+375 (29) 828-75-95", tel: "+375298287595", category: "staff" },
-  { id: 40, name: "Кучук Николай Николаевич", role: "зам. директора по коммерческим вопросам", dept: "Управление (констр, технолог)", phone: "+375 (29) 820-30-10", tel: "+375298203010", category: "staff" },
-  { id: 41, name: "Лаврисюк Евгения Анатольевна", role: "экономист отдела снабжения", dept: "Бухгалтерия, Кадры, Юридический", phone: "+375 (29) 791-42-34", tel: "+375297914234", category: "staff" },
-  { id: 42, name: "Лишик Данила Александрович", role: "электрогазосварщик", dept: "Сварочный участок", phone: "+375 (33) 326-33-28", tel: "+375333263328", category: "staff" },
-  { id: 43, name: "Ломонос Павел Иванович", role: "оператор станков с ЧПУ", dept: "Лазерный участок", phone: "+375 (29) 521-02-59", tel: "+375295210259", category: "staff" },
-  { id: 44, name: "Лосев Сергей Петрович", role: "электрогазосварщик", dept: "Сварочный участок", phone: "+375 (29) 971-90-40", tel: "+375299719040", category: "staff" },
-  { id: 45, name: "Лосева Валентина Константиновна", role: "маляр", dept: "Участок покраски", phone: "+375 (33) 303-13-36", tel: "+375333031336", category: "staff" },
-  { id: 46, name: "Лындин Вадим Семенович", role: "заместитель директора по внешнеэкономической деятельности", dept: "Коммерческий документ", phone: "+375 (29) 627-40-41", tel: "+375296274041", category: "staff" },
-  { id: 47, name: "Маркович Николай Николаевич", role: "слесарь по ремонту боевых и специальных машин", dept: "Участок изготовления кунгов", phone: "+375 (29) 790-21-99", tel: "+375297902199", category: "staff" },
-  { id: 48, name: "Матяс Вячеслав Владимирович", role: "слесарь-электрик по ремонту оборудования боевых машин", dept: "Сборочно-слесарный участок", phone: "+375 (29) 809-23-01", tel: "+375298092301", category: "staff" },
-  { id: 49, name: "Небольсина Ольга Сергеевна", role: "бухгалтер", dept: "Склад, Учет ТМЦ, Делопроизводство", phone: "+375 (29) 824-32-89", tel: "+375298243289", category: "staff" },
-  { id: 50, name: "Никитин Павел Андреевич", role: "слесарь по ремонту боевых и специальных машин", dept: "Сборочно-слесарный участок", phone: "+375 (29) 889-84-99", tel: "+375298898499", category: "staff" },
-  { id: 51, name: "Осипик Анастасия Николаевна", role: "маляр", dept: "Участок покраски", phone: "+375 (33) 322-38-68", tel: "+375333223868", category: "staff" },
-  { id: 52, name: "Павлович Александр Геннадьевич", role: "главный конструктор", dept: "Конструкторский отдел", phone: "+375 (29) 616-48-35", tel: "+375296164835", category: "staff" },
-  { id: 53, name: "Петрович Андрей Евгеньевич", role: "слесарь по ремонту боевых и специальных машин", dept: "Участок изготовления кунгов", phone: "+375 (33) 322-32-87", tel: "+375333223287", category: "staff" },
-  { id: 54, name: "Петрович Владимир Евгеньевич", role: "слесарь по ремонту боевых и специальных машин", dept: "Участок изготовления кунгов", phone: "+375 (29) 529-76-94", tel: "+375295297694", category: "staff" },
-  { id: 55, name: "Писаренко Алексей Валерьевич", role: "слесарь по ремонту боевых и специальных машин", dept: "Участок изготовления кунгов", phone: "+375 (29) 793-86-73", tel: "+375297938673", category: "staff" },
-  { id: 56, name: "Пищ Марина Валерьевна", role: "маляр", dept: "Участок покраски", phone: "+375 (33) 622-14-94", tel: "+375336221494", category: "staff" },
-  { id: 57, name: "Приходько Константин Николаевич", role: "мастер участка окраски", dept: "Участок покраски", phone: "+375 (29) 704-89-17", tel: "+375297048917", category: "staff" },
-  { id: 58, name: "Рабцевич Александр Викторович", role: "слесарь по ремонту боевых и специальных машин", dept: "ОТК", phone: "+375 (29) 209-46-71", tel: "+375292094671", category: "staff" },
-  { id: 59, name: "Радненок Владислав Дмитриевич", role: "электрогазосварщик", dept: "Сварочный участок", phone: "+375 (29) 541-29-34", tel: "+375295412934", category: "staff" },
-  { id: 60, name: "Ралло Олег Михайлович", role: "электрогазосварщик", dept: "Сварочный участок", phone: "+375 (29) 761-25-20", tel: "+375297612520", category: "staff" },
-  { id: 61, name: "Ралько Ирина Юрьевна", role: "кладовщик", dept: "Склад, Учет ТМЦ, Делопроизводство", phone: "+375 (29) 522-51-20", tel: "+375295225120", category: "staff" },
-  { id: 62, name: "Ромейко Екатерина Иосифовна", role: "подсобный рабочий", dept: "Сварочный участок", phone: "+375 (29) 224-41-35", tel: "+375292244135", category: "staff" },
-  { id: 63, name: "Рыжков Александр Викторович", role: "охранник 0,25ст.", dept: "Охрана ПДО", phone: "+375 (29) 208-75-66", tel: "+375292087566", category: "staff" },
-  { id: 64, name: "Садомов Андрей Анатольевич", role: "заместитель директора по производству", dept: "Управление (констр, технолог)", phone: "+375 (29) 201-38-97", tel: "+375292013897", category: "staff" },
-  { id: 65, name: "Силицкий Никита Витальевич", role: "инженер-технолог", dept: "Лазерный участок", phone: "+375 (44) 795-50-41", tel: "+375447955041", category: "staff" },
-  { id: 66, name: "Смирнов Александр Александрович", role: "начальник производства", dept: "Управление (констр, технолог)", phone: "+375 (29) 209-26-20", tel: "+375292092620", category: "staff" },
-  { id: 67, name: "Степанова Ольга Сергеевна", role: "инженер-конструктор", dept: "Конструкторский отдел", phone: "+375 (29) 825-23-69", tel: "+375298252369", category: "staff" },
-  { id: 68, name: "Сыс Ирина Арисовна", role: "экономист", dept: "Бухгалтерия, Кадры, Юридический", phone: "+375 (29) 672-27-10", tel: "+375296722710", category: "staff" },
-  { id: 69, name: "Тутин Владимир Владимирович", role: "водитель", dept: "Водители", phone: "+375 (29) 201-56-60", tel: "+375292015660", category: "staff" },
-  { id: 70, name: "Улас Илья Владимирович", role: "слесарь по ремонту боевых и специальных машин", dept: "Участок изготовления кунгов", phone: "+375 (33) 387-88-47", tel: "+37533878847", category: "staff" },
-  { id: 71, name: "Филончик Илья Валерьевич", role: "слесарь по ремонту боевых и специальных машин", dept: "Сварочный участок", phone: "+375 (29) 596-73-83", tel: "+375295967383", category: "staff" },
-  { id: 72, name: "Харламов Виталий Александрович", role: "администратор 0,25", dept: "Гать", phone: "+375 (29) 629-84-09", tel: "+375296298409", category: "staff" },
-  { id: 73, name: "Чайко Сергей Леонидович", role: "слесарь-электрик по ремонту электрооборудования боевых машин", dept: "Сборочно-слесарный участок", phone: "+375 (33) 641-66-93", tel: "+375336416693", category: "staff" },
-  { id: 74, name: "Чупахин Максим Васильевич", role: "слесарь по ремонту боевых и специальных машин", dept: "Сварочный участок", phone: "+375 (25) 784-33-54", tel: "+375257843354", category: "staff" },
-  { id: 75, name: "Чучков Евгений Николаевич", role: "слесарь по ремонту боевых и специальных машин", dept: "Участок изготовления кунгов", phone: "+375 (29) 651-09-30", tel: "+375296510930", category: "staff" },
-  { id: 76, name: "Шепель Алена Федоровна", role: "юрисконсульт", dept: "Бухгалтерия, Кадры, Юридический", phone: "+375 (29) 523-12-12", tel: "+375295231212", category: "staff" },
-  { id: 77, name: "Шклярик Александр Николаевич", role: "начальник участка", dept: "Лазерный участок", phone: "+375 (33) 328-31-51", tel: "+375333283151", category: "staff" },
-  { id: 78, name: "Шлык Екатерина Викторовна", role: "технический редактор", dept: "Склад, Учет ТМЦ, Делопроизводство", phone: "+375 (29) 794-26-93", tel: "+375297942693", category: "staff" },
-  { id: 79, name: "Ярошевич Борис Борисович", role: "слесарь по ремонту боевых и специальных машин", dept: "Участок изготовления кунгов", phone: "+375 (29) 772-48-21", tel: "+375297724821", category: "staff" }
+const baseStaffData = [
+  { id: 1, name: "Антонников Алексей Владимирович", role: "директор", dept: "Управление (констр, технолог)", phone: "+375 (33) 307-30-74", tel: "+375333073074", category: "staff", photo: "" },
+  { id: 2, name: "Арцыменя Владимир Викторович", role: "инженер по подготовке производства", dept: "Коммерческий документ", phone: "+375 (29) 724-04-09", tel: "+375297240409", category: "staff", photo: "" },
+  { id: 3, name: "Аскальдович Дмитрий Юрьевич", role: "слесарь по ремонту боевых и специальных машин", dept: "Сборочно-слесарный участок", phone: "+375 (29) 827-81-57", tel: "+375298278157", category: "staff", photo: "" },
+  { id: 4, name: "Афанасьев Павел Сергеевич", role: "оператор станков с ЧПУ", dept: "Лазерный участок", phone: "+375 (29) 290-23-94", tel: "+375292902394", category: "staff", photo: "" },
+  { id: 5, name: "Бабко Дмитрий Иванович", role: "электрогазосварщик", dept: "Сварочный участок", phone: "+375 (29) 795-16-22", tel: "+375297951622", category: "staff", photo: "" },
+  { id: 6, name: "Бакунович Сергей Викторович", role: "пескоструйщик", dept: "Участок пескоструйки", phone: "+375 (29) 823-32-93", tel: "+375298233293", category: "staff", photo: "" },
+  { id: 7, name: "Белькович Дмитрий Андреевич", role: "электрогазосварщик", dept: "Сварочный участок", phone: "+375 (29) 582-44-60", tel: "+375295824460", category: "staff", photo: "" },
+  { id: 8, name: "Билявский Владимир Владимирович", role: "оператор станков с ЧПУ", dept: "Лазерный участок", phone: "+375 (33) 692-70-54", tel: "+375336927054", category: "staff", photo: "" },
+  { id: 9, name: "Бовкало Александр Владимирович", role: "слесарь по ремонту боевых и специальных машин", dept: "Сборочно-слесарный участок", phone: "+375 (29) 583-97-95", tel: "+375295839795", category: "staff", photo: "" },
+  { id: 10, name: "Будаев Борис Юрьевич", role: "помощник руководителя", dept: "Управление (констр, технолог)", phone: "+375 (29) 661-62-88", tel: "+375296616288", category: "staff", photo: "" },
+  { id: 11, name: "Бушков Максим Николаевич", role: "мастер участка сварочных работ", dept: "Сварочный участок", phone: "+375 (29) 586-54-03", tel: "+375295865403", category: "staff", photo: "" },
+  { id: 12, name: "Быченок Светлана Федоровна", role: "маляр", dept: "Участок покраски", phone: "+375 (29) 797-41-25", tel: "+375297974125", category: "staff", photo: "" },
+  { id: 13, name: "Бычёк Евгений Владимирович", role: "инженер-технолог", dept: "Лазерный участок", phone: "+375 (29) 529-05-92", tel: "+375295290592", category: "staff", photo: "" },
+  { id: 14, name: "Бычков Сергей Анатольевич", role: "слесарь по ремонту боевых и специальных машин", dept: "Участок изготовления кунгов", phone: "+375 (29) 805-39-09", tel: "+375298053909", category: "staff", photo: "" },
+  { id: 15, name: "Василевич Дмитрий Валерьевич", role: "токарь", dept: "Токарный участок", phone: "+375 (29) 224-72-16", tel: "+375292247216", category: "staff", photo: "" },
+  { id: 16, name: "Витко Тамара Владимировна", role: "сторож", dept: "Гать", phone: "+375 (29) 824-41-59", tel: "+375298244159", category: "staff", photo: "" },
+  { id: 17, name: "Воронко Сергей Михайлович", role: "пескоструйщик", dept: "Участок пескоструйки", phone: "+375 (29) 223-45-74", tel: "+375292234574", category: "staff", photo: "" },
+  { id: 18, name: "Гармашук Олег Юрьевич", role: "электрогазосварщик", dept: "Сварочный участок", phone: "+375 (44) 561-68-32", tel: "+375445616832", category: "staff", photo: "" },
+  { id: 19, name: "Данильчик Егор Викторович", role: "слесарь по ремонту боевых и специальных машин", dept: "Участок изготовления кунгов", phone: "+375 (29) 200-33-95", tel: "+375292003395", category: "staff", photo: "" },
+  { id: 20, name: "Даной Федор Николаевич", role: "электрогазосварщик", dept: "Сварочный участок", phone: "+375 (33) 608-34-86", tel: "+375336083486", category: "staff", photo: "" },
+  { id: 21, name: "Дердюк Сергей Николаевич", role: "заместитель директора по организации производства", dept: "Управление (констр, технолог)", phone: "+375 (29) 651-35-62", tel: "+375296513562", category: "staff", photo: "" },
+  { id: 22, name: "Дердюк Татьяна Игоревна", role: "художник-конструктор", dept: "Управление (констр, технолог)", phone: "+375 (29) 132-55-82", tel: "+375291325582", category: "staff", photo: "" },
+  { id: 23, name: "Домаш Сергей Борисович", role: "слесарь по ремонту боевых и специальных машин", dept: "Сборочно-слесарный участок", phone: "+375 (25) 902-17-49", tel: "+375259021749", category: "staff", photo: "" },
+  { id: 24, name: "Зайко Сергей Константинович", role: "каменщик", dept: "Строители", phone: "+375 (29) 725-69-38", tel: "+375297256938", category: "staff", photo: "" },
+  { id: 25, name: "Иванов Александр Евгеньевич", role: "слесарь по ремонту боевых и специальных машин", dept: "Сборочно-слесарный участок", phone: "+375 (29) 580-11-45", tel: "+375295801145", category: "staff", photo: "" },
+  { id: 26, name: "Казак Иван Валерьевич", role: "маляр", dept: "Участок покраски", phone: "+375 (33) 355-96-98", tel: "+375333559698", category: "staff", photo: "" },
+  { id: 27, name: "Калюша Юрий Константинович", role: "каменщик", dept: "Строители", phone: "+375 (29) 800-22-59", tel: "+375298002259", category: "staff", photo: "" },
+  { id: 28, name: "Калько Наталья Сергеевна", role: "специалист по кадрам", dept: "Бухгалтерия, Кадры, Юридический", phone: "+375 (29) 596-55-59", tel: "+375295965559", category: "staff", photo: "" },
+  { id: 29, name: "Касач Анатолий Генадьевич", role: "мастер контрольный", dept: "Сборочно-слесарный участок", phone: "+375 (33) 607-90-37", tel: "+375336079037", category: "staff", photo: "" },
+  { id: 30, name: "Киб Сергей Викторович", role: "мастер участка газозарядных машин", dept: "ОТК", phone: "+375 (29) 895-89-41", tel: "+375298958941", category: "staff", photo: "" },
+  { id: 31, name: "Коваленко Юлия Николаевна", role: "маляр", dept: "Участок покраски", phone: "+375 (33) 382-63-91", tel: "+375333826391", category: "staff", photo: "" },
+  { id: 32, name: "Ковецкий Андрей Павлович", role: "электрогазосварщик", dept: "Сварочный участок", phone: "+375 (29) 207-69-34", tel: "+375292076934", category: "staff", photo: "" },
+  { id: 33, name: "Козак Елена Михайловна", role: "главный бухгалтер", dept: "Бухгалтерия, Кадры, Юридический", phone: "+375 (29) 729-61-23", tel: "+375297296123", category: "staff", photo: "" },
+  { id: 34, name: "Колис Григорий Дмитриевич", role: "сторож", dept: "Гать", phone: "+375 (29) 798-38-02", tel: "+375297983802", category: "staff", photo: "" },
+  { id: 35, name: "Кологрив Анатолий Васильевич", role: "первый заместитель директора", dept: "Управление (констр, технолог)", phone: "+375 (29) 642-02-35", tel: "+375296420235", category: "staff", photo: "" },
+  { id: 36, name: "Кондрашов Игорь Викторович", role: "инженер-конструктор", dept: "Конструкторский отдел", phone: "+375 (29) 794-71-16", tel: "+375297947116", category: "staff", photo: "" },
+  { id: 37, name: "Кондрашова Марина Васильевна", role: "инженер-конструктор", dept: "Конструкторский отдел", phone: "+375 (29) 823-21-53", tel: "+375298232153", category: "staff", photo: "" },
+  { id: 38, name: "Кононович Иван Александрович", role: "инженер-конструктор", dept: "Конструкторский отдел", phone: "+375 (29) 526-97-12", tel: "+375295269712", category: "staff", photo: "" },
+  { id: 39, name: "Корза Евгений Владимирович", role: "оператор станков с ЧПУ", dept: "Лазерный участок", phone: "+375 (29) 828-75-95", tel: "+375298287595", category: "staff", photo: "" },
+  { id: 40, name: "Кучук Николай Николаевич", role: "зам. директора по коммерческим вопросам", dept: "Управление (констр, технолог)", phone: "+375 (29) 820-30-10", tel: "+375298203010", category: "staff", photo: "" },
+  { id: 41, name: "Лаврисюк Евгения Анатольевна", role: "экономист отдела снабжения", dept: "Бухгалтерия, Кадры, Юридический", phone: "+375 (29) 791-42-34", tel: "+375297914234", category: "staff", photo: "" },
+  { id: 42, name: "Лишик Данила Александрович", role: "электрогазосварщик", dept: "Сварочный участок", phone: "+375 (33) 326-33-28", tel: "+375333263328", category: "staff", photo: "" },
+  { id: 43, name: "Ломонос Павел Иванович", role: "оператор станков с ЧПУ", dept: "Лазерный участок", phone: "+375 (29) 521-02-59", tel: "+375295210259", category: "staff", photo: "" },
+  { id: 44, name: "Лосев Сергей Петрович", role: "электрогазосварщик", dept: "Сварочный участок", phone: "+375 (29) 971-90-40", tel: "+375299719040", category: "staff", photo: "" },
+  { id: 45, name: "Лосева Валентина Константиновна", role: "маляр", dept: "Участок покраски", phone: "+375 (33) 303-13-36", tel: "+375333031336", category: "staff", photo: "" },
+  { id: 46, name: "Лындин Вадим Семенович", role: "заместитель директора по внешнеэкономической деятельности", dept: "Коммерческий документ", phone: "+375 (29) 627-40-41", tel: "+375296274041", category: "staff", photo: "" },
+  { id: 47, name: "Маркович Николай Николаевич", role: "слесарь по ремонту боевых и специальных машин", dept: "Участок изготовления кунгов", phone: "+375 (29) 790-21-99", tel: "+375297902199", category: "staff", photo: "" },
+  { id: 48, name: "Матяс Вячеслав Владимирович", role: "слесарь-электрик по ремонту оборудования боевых машин", dept: "Сборочно-слесарный участок", phone: "+375 (29) 809-23-01", tel: "+375298092301", category: "staff", photo: "" },
+  { id: 49, name: "Небольсина Ольга Сергеевна", role: "бухгалтер", dept: "Склад, Учет ТМЦ, Делопроизводство", phone: "+375 (29) 824-32-89", tel: "+375298243289", category: "staff", photo: "" },
+  { id: 50, name: "Никитин Павел Андреевич", role: "слесарь по ремонту боевых и специальных машин", dept: "Сборочно-слесарный участок", phone: "+375 (29) 889-84-99", tel: "+375298898499", category: "staff", photo: "" },
+  { id: 51, name: "Осипик Анастасия Николаевна", role: "маляр", dept: "Участок покраски", phone: "+375 (33) 322-38-68", tel: "+375333223868", category: "staff", photo: "" },
+  { id: 52, name: "Павлович Александр Геннадьевич", role: "главный конструктор", dept: "Конструкторский отдел", phone: "+375 (29) 616-48-35", tel: "+375296164835", category: "staff", photo: "" },
+  { id: 53, name: "Петрович Андрей Евгеньевич", role: "слесарь по ремонту боевых и специальных машин", dept: "Участок изготовления кунгов", phone: "+375 (33) 322-32-87", tel: "+375333223287", category: "staff", photo: "" },
+  { id: 54, name: "Петрович Владимир Евгеньевич", role: "слесарь по ремонту боевых и специальных машин", dept: "Участок изготовления кунгов", phone: "+375 (29) 529-76-94", tel: "+375295297694", category: "staff", photo: "" },
+  { id: 55, name: "Писаренко Алексей Валерьевич", role: "слесарь по ремонту боевых и специальных машин", dept: "Участок изготовления кунгов", phone: "+375 (29) 793-86-73", tel: "+375297938673", category: "staff", photo: "" },
+  { id: 56, name: "Пищ Марина Валерьевна", role: "маляр", dept: "Участок покраски", phone: "+375 (33) 622-14-94", tel: "+375336221494", category: "staff", photo: "" },
+  { id: 57, name: "Приходько Константин Николаевич", role: "мастер участка окраски", dept: "Участок покраски", phone: "+375 (29) 704-89-17", tel: "+375297048917", category: "staff", photo: "" },
+  { id: 58, name: "Рабцевич Александр Викторович", role: "слесарь по ремонту боевых и специальных машин", dept: "ОТК", phone: "+375 (29) 209-46-71", tel: "+375292094671", category: "staff", photo: "" },
+  { id: 59, name: "Радненок Владислав Дмитриевич", role: "электрогазосварщик", dept: "Сварочный участок", phone: "+375 (29) 541-29-34", tel: "+375295412934", category: "staff", photo: "" },
+  { id: 60, name: "Ралло Олег Михайлович", role: "электрогазосварщик", dept: "Сварочный участок", phone: "+375 (29) 761-25-20", tel: "+375297612520", category: "staff", photo: "" },
+  { id: 61, name: "Ралько Ирина Юрьевна", role: "кладовщик", dept: "Склад, Учет ТМЦ, Делопроизводство", phone: "+375 (29) 522-51-20", tel: "+375295225120", category: "staff", photo: "" },
+  { id: 62, name: "Ромейко Екатерина Иосифовна", role: "подсобный рабочий", dept: "Сварочный участок", phone: "+375 (29) 224-41-35", tel: "+375292244135", category: "staff", photo: "" },
+  { id: 63, name: "Рыжков Александр Викторович", role: "охранник 0,25ст.", dept: "Охрана ПДО", phone: "+375 (29) 208-75-66", tel: "+375292087566", category: "staff", photo: "" },
+  { id: 64, name: "Садомов Андрей Анатольевич", role: "заместитель директора по производству", dept: "Управление (констр, технолог)", phone: "+375 (29) 201-38-97", tel: "+375292013897", category: "staff", photo: "" },
+  { id: 65, name: "Силицкий Никита Витальевич", role: "инженер-технолог", dept: "Лазерный участок", phone: "+375 (44) 795-50-41", tel: "+375447955041", category: "staff", photo: "" },
+  { id: 66, name: "Смирнов Александр Александрович", role: "начальник производства", dept: "Управление (констр, технолог)", phone: "+375 (29) 209-26-20", tel: "+375292092620", category: "staff", photo: "" },
+  { id: 67, name: "Степанова Ольга Сергеевна", role: "инженер-конструктор", dept: "Конструкторский отдел", phone: "+375 (29) 825-23-69", tel: "+375298252369", category: "staff", photo: "" },
+  { id: 68, name: "Сыс Ирина Арисовна", role: "экономист", dept: "Бухгалтерия, Кадры, Юридический", phone: "+375 (29) 672-27-10", tel: "+375296722710", category: "staff", photo: "" },
+  { id: 69, name: "Тутин Владимир Владимирович", role: "водитель", dept: "Водители", phone: "+375 (29) 201-56-60", tel: "+375292015660", category: "staff", photo: "" },
+  { id: 70, name: "Улас Илья Владимирович", role: "слесарь по ремонту боевых и специальных машин", dept: "Участок изготовления кунгов", phone: "+375 (33) 387-88-47", tel: "+37533878847", category: "staff", photo: "" },
+  { id: 71, name: "Филончик Илья Валерьевич", role: "слесарь по ремонту боевых и специальных машин", dept: "Сварочный участок", phone: "+375 (29) 596-73-83", tel: "+375295967383", category: "staff", photo: "" },
+  { id: 72, name: "Харламов Виталий Александрович", role: "администратор 0,25", dept: "Гать", phone: "+375 (29) 629-84-09", tel: "+375296298409", category: "staff", photo: "" },
+  { id: 73, name: "Чайко Сергей Леонидович", role: "слесарь-электрик по ремонту электрооборудования боевых машин", dept: "Сборочно-слесарный участок", phone: "+375 (33) 641-66-93", tel: "+375336416693", category: "staff", photo: "" },
+  { id: 74, name: "Чупахин Максим Васильевич", role: "слесарь по ремонту боевых и специальных машин", dept: "Сварочный участок", phone: "+375 (25) 784-33-54", tel: "+375257843354", category: "staff", photo: "" },
+  { id: 75, name: "Чучков Евгений Николаевич", role: "слесарь по ремонту боевых и специальных машин", dept: "Участок изготовления кунгов", phone: "+375 (29) 651-09-30", tel: "+375296510930", category: "staff", photo: "" },
+  { id: 76, name: "Шепель Алена Федоровна", role: "юрисконсульт", dept: "Бухгалтерия, Кадры, Юридический", phone: "+375 (29) 523-12-12", tel: "+375295231212", category: "staff", photo: "" },
+  { id: 77, name: "Шклярик Александр Николаевич", role: "начальник участка", dept: "Лазерный участок", phone: "+375 (33) 328-31-51", tel: "+375333283151", category: "staff", photo: "" },
+  { id: 78, name: "Шлык Екатерина Викторовна", role: "технический редактор", dept: "Склад, Учет ТМЦ, Делопроизводство", phone: "+375 (29) 794-26-93", tel: "+375297942693", category: "staff", photo: "" },
+  { id: 79, name: "Ярошевич Борис Борисович", role: "слесарь по ремонту боевых и специальных машин", dept: "Участок изготовления кунгов", phone: "+375 (29) 772-48-21", tel: "+375297724821", category: "staff", photo: "" }
 ];
 
 const defaultPartners = [
@@ -670,22 +796,20 @@ const defaultPartners = [
     phone: "+375 (29) 827-64-74",
     tel: "+375298276474",
     category: "partner",
-    isCustom: false
+    photo: ""
   }
 ];
 
-function getSavedPartners() {
-  const local = localStorage.getItem('phonebook_custom_partners');
-  if (!local) return defaultPartners;
-  try {
-    return JSON.parse(local);
-  } catch (e) {
-    return defaultPartners;
+function getStoredContacts() {
+  const local = localStorage.getItem('phonebook_all_contacts');
+  if (local) {
+    try { return JSON.parse(local); } catch(e) {}
   }
+  return [...baseStaffData, ...defaultPartners];
 }
 
-function savePartnersToStorage(list) {
-  localStorage.setItem('phonebook_custom_partners', JSON.stringify(list));
+function saveContactsToStorage(list) {
+  localStorage.setItem('phonebook_all_contacts', JSON.stringify(list));
 }
 
 let activeCategory = 'all';
@@ -698,7 +822,29 @@ const countBadge = document.getElementById('countBadge');
 const tableBody = document.getElementById('tableBody');
 const cardsContainer = document.getElementById('cardsContainer');
 const emptyState = document.getElementById('emptyState');
-const addModal = document.getElementById('addModal');
+const contactModal = document.getElementById('contactModal');
+
+function getInitials(name) {
+  if (!name) return '?';
+  const parts = name.trim().split(/\s+/);
+  if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
+  return (parts[0][0] + (parts[1] ? parts[1][0] : '')).toUpperCase();
+}
+
+function renderAvatar(item, size = 44) {
+  if (item.photo) {
+    return `
+      <div class="avatar-wrapper" style="width: ${size}px; height: ${size}px;">
+        <img src="${item.photo}" class="avatar-img" alt="${item.name}">
+      </div>
+    `;
+  }
+  return `
+    <div class="avatar-wrapper" style="width: ${size}px; height: ${size}px;">
+      <span class="avatar-initials">${getInitials(item.name)}</span>
+    </div>
+  `;
+}
 
 function formatPhoneNumber(raw) {
   const d = raw.replace(/\D/g, '');
@@ -722,11 +868,6 @@ function formatPhoneNumber(raw) {
   };
 }
 
-function getAllContacts() {
-  const partners = getSavedPartners();
-  return [...staffData, ...partners];
-}
-
 function switchCategory(cat) {
   activeCategory = cat;
   document.getElementById('tabEmployees').classList.toggle('active', cat === 'all');
@@ -737,7 +878,7 @@ function switchCategory(cat) {
 }
 
 function populateDeptDropdown() {
-  const contacts = getAllContacts().filter(c => {
+  const contacts = getStoredContacts().filter(c => {
     if (activeCategory === 'staff') return c.category === 'staff';
     if (activeCategory === 'partners') return c.category === 'partner';
     return true;
@@ -753,61 +894,154 @@ function populateDeptDropdown() {
   });
 }
 
-function openAddModal() {
-  addModal.style.display = 'flex';
-  document.getElementById('newContactName').focus();
+// Загрузка и автоматическое сжатие фото перед сохранением в Base64
+function handlePhotoUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = new Image();
+    img.onload = function() {
+      // Сжимаем фото до 200x200 px для экономии места в памяти
+      const canvas = document.createElement('canvas');
+      const maxDim = 200;
+      let w = img.width;
+      let h = img.height;
+
+      if (w > h) {
+        if (w > maxDim) {
+          h *= maxDim / w;
+          w = maxDim;
+        }
+      } else {
+        if (h > maxDim) {
+          w *= maxDim / h;
+          h = maxDim;
+        }
+      }
+
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, w, h);
+
+      const base64 = canvas.toDataURL('image/jpeg', 0.82);
+      setModalPhoto(base64);
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsText(file); // Trigger
+  reader.readAsDataURL(file);
 }
 
-function closeAddModal() {
-  addModal.style.display = 'none';
-  document.getElementById('newContactName').value = '';
-  document.getElementById('newContactRole').value = '';
-  document.getElementById('newContactDept').value = '';
-  document.getElementById('newContactPhone').value = '';
+function setModalPhoto(base64) {
+  document.getElementById('photoBase64').value = base64 || '';
+  const preview = document.getElementById('photoPreview');
+  const btnRemove = document.getElementById('btnRemovePhoto');
+
+  if (base64) {
+    preview.innerHTML = `<img src="${base64}">`;
+    btnRemove.style.display = 'block';
+  } else {
+    preview.innerHTML = '📷';
+    btnRemove.style.display = 'none';
+  }
 }
 
-function saveNewPartner() {
-  const name = document.getElementById('newContactName').value.trim();
-  const role = document.getElementById('newContactRole').value.trim() || 'Поставщик / Клиент';
-  const dept = document.getElementById('newContactDept').value.trim() || 'Адрес не указан';
-  const rawPhone = document.getElementById('newContactPhone').value.trim();
+function removeCurrentPhoto() {
+  setModalPhoto('');
+  document.getElementById('photoFileInput').value = '';
+}
+
+function openContactModal() {
+  document.getElementById('modalTitle').textContent = 'Добавить контакт';
+  document.getElementById('editContactId').value = '';
+  document.getElementById('contactName').value = '';
+  document.getElementById('contactRole').value = activeCategory === 'partners' ? 'Поставщик / Клиент' : '';
+  document.getElementById('contactDept').value = '';
+  document.getElementById('contactPhone').value = '';
+  setModalPhoto('');
+  contactModal.style.display = 'flex';
+  document.getElementById('contactName').focus();
+}
+
+function editContact(id) {
+  const list = getStoredContacts();
+  const item = list.find(c => c.id === id);
+  if (!item) return;
+
+  document.getElementById('modalTitle').textContent = 'Редактировать контакт';
+  document.getElementById('editContactId').value = item.id;
+  document.getElementById('contactName').value = item.name;
+  document.getElementById('contactRole').value = item.role;
+  document.getElementById('contactDept').value = item.dept;
+  document.getElementById('contactPhone').value = item.phone;
+  setModalPhoto(item.photo || '');
+  contactModal.style.display = 'flex';
+  document.getElementById('contactName').focus();
+}
+
+function closeContactModal() {
+  contactModal.style.display = 'none';
+}
+
+function saveContact() {
+  const editId = document.getElementById('editContactId').value;
+  const name = document.getElementById('contactName').value.trim();
+  const role = document.getElementById('contactRole').value.trim() || 'Сотрудник / Партнер';
+  const dept = document.getElementById('contactDept').value.trim() || 'Адрес не указан';
+  const rawPhone = document.getElementById('contactPhone').value.trim();
+  const photo = document.getElementById('photoBase64').value;
 
   if (!name || !rawPhone) {
-    alert('Пожалуйста, заполните как минимум имя и номер телефона.');
+    alert('Пожалуйста, укажите имя и номер телефона.');
     return;
   }
 
   const { display, tel } = formatPhoneNumber(rawPhone);
-  const partners = getSavedPartners();
-  const nextId = 100 + partners.length + 1;
+  let list = getStoredContacts();
 
-  partners.push({
-    id: nextId,
-    name,
-    role,
-    dept,
-    phone: display,
-    tel,
-    category: 'partner',
-    isCustom: true
-  });
+  if (editId) {
+    const idx = list.findIndex(c => c.id === Number(editId));
+    if (idx !== -1) {
+      list[idx].name = name;
+      list[idx].role = role;
+      list[idx].dept = dept;
+      list[idx].phone = display;
+      list[idx].tel = tel;
+      list[idx].photo = photo;
+    }
+  } else {
+    const maxId = list.reduce((m, c) => Math.max(m, c.id), 0);
+    list.push({
+      id: maxId + 1,
+      name,
+      role,
+      dept,
+      phone: display,
+      tel,
+      photo,
+      category: activeCategory === 'staff' ? 'staff' : 'partner'
+    });
+  }
 
-  savePartnersToStorage(partners);
-  closeAddModal();
-  switchCategory('partners');
-}
-
-function deletePartner(id) {
-  if (!confirm('Удалить этот контакт?')) return;
-  let partners = getSavedPartners();
-  partners = partners.filter(p => p.id !== id);
-  savePartnersToStorage(partners);
+  saveContactsToStorage(list);
+  closeContactModal();
+  populateDeptDropdown();
   render();
 }
 
-// ЭКСПОРТ БАЗЫ ДАННЫХ В ЧИСТЫЙ JSON ФАЙЛ
+function deleteContact(id) {
+  if (!confirm('Вы уверены, что хотите удалить этот контакт?')) return;
+  let list = getStoredContacts().filter(c => c.id !== id);
+  saveContactsToStorage(list);
+  populateDeptDropdown();
+  render();
+}
+
 function exportData() {
-  const data = getAllContacts();
+  const data = getStoredContacts();
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
@@ -818,7 +1052,6 @@ function exportData() {
   URL.revokeObjectURL(url);
 }
 
-// ИМПОРТ И ВОССТАНОВЛЕНИЕ БАЗЫ ДАННЫХ
 function importData(event) {
   const file = event.target.files[0];
   if (!file) return;
@@ -828,16 +1061,12 @@ function importData(event) {
     try {
       const imported = JSON.parse(e.target.result);
       if (!Array.isArray(imported)) throw new Error();
-
-      const partnersOnly = imported.filter(item => item.category === 'partner');
-      if (partnersOnly.length > 0) {
-        savePartnersToStorage(partnersOnly);
-      }
-      alert(`База успешно загружена! Найдено контактов: ${imported.length}`);
+      saveContactsToStorage(imported);
+      alert(`База успешно загружена! Записей: ${imported.length}`);
       populateDeptDropdown();
       render();
     } catch (err) {
-      alert("Ошибка при чтении файла. Убедитесь, что выбран корректный файл резервной копии.");
+      alert("Ошибка при чтении файла. Убедитесь, что выбран корректный файл JSON.");
     }
   };
   reader.readAsText(file);
@@ -873,9 +1102,9 @@ function getFilteredData() {
   const selectedDept = deptSelect.value;
   const digitsOnly = query.replace(/\D/g, '');
 
-  let list = getAllContacts().filter(c => {
-    if (activeCategory === 'staff') return c.category === 'staff';
-    if (activeCategory === 'partners') return c.category === 'partner';
+  let list = getStoredContacts().filter(c => {
+    if (activeCategory === 'staff' && c.category !== 'staff') return false;
+    if (activeCategory === 'partners' && c.category !== 'partner') return false;
     return true;
   });
 
@@ -908,7 +1137,7 @@ function getFilteredData() {
 
 function render() {
   const list = getFilteredData();
-  const total = getAllContacts().length;
+  const total = getStoredContacts().length;
   countBadge.textContent = `Показано: ${list.length} из ${total}`;
 
   if (list.length === 0) {
@@ -923,19 +1152,28 @@ function render() {
 
   tableBody.innerHTML = list.map(item => {
     const isPartner = item.category === 'partner';
-    const tag = isPartner ? '<span class="tag-badge tag-partner">Поставщик</span>' : '';
-    const delBtn = item.isCustom ? `<button onclick="deletePartner(${item.id})" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:1.1rem;" title="Удалить">🗑</button>` : '';
+    const tag = isPartner ? '<span class="tag-badge tag-partner">Партнер</span>' : '';
 
     return `
       <tr>
         <td style="color: var(--text-muted); font-weight: 600;">${item.id}</td>
-        <td class="name-cell">${item.name} ${tag}</td>
+        <td>
+          <div class="table-user-cell">
+            ${renderAvatar(item, 36)}
+            <span class="name-cell">${item.name} ${tag}</span>
+          </div>
+        </td>
         <td style="color: ${isPartner ? 'var(--partner-accent)' : '#cbd5e1'}">${item.role}</td>
         <td class="dept-cell">${item.dept}</td>
         <td>
           <a class="desktop-phone-link" href="tel:${item.tel}">📞 ${item.phone}</a>
         </td>
-        <td>${delBtn}</td>
+        <td>
+          <div class="table-actions">
+            <button onclick="editContact(${item.id})" style="background:none;border:none;cursor:pointer;font-size:1.1rem;" title="Редактировать">✏️</button>
+            <button onclick="deleteContact(${item.id})" style="background:none;border:none;cursor:pointer;font-size:1.1rem;" title="Удалить">🗑</button>
+          </div>
+        </td>
       </tr>
     `;
   }).join('');
@@ -943,22 +1181,27 @@ function render() {
   cardsContainer.innerHTML = list.map(item => {
     const isPartner = item.category === 'partner';
     const partnerClass = isPartner ? 'partner-card' : '';
-    const tag = isPartner ? '<span class="tag-badge tag-partner">Поставщик/Потребитель</span>' : '';
-    const delBtn = item.isCustom ? `<button class="del-btn" onclick="deletePartner(${item.id})">✕</button>` : '';
+    const tag = isPartner ? '<span class="tag-badge tag-partner">Партнер</span>' : '';
 
     return `
       <div class="contact-card ${partnerClass}">
         <div class="card-top">
-          <span class="card-name">${item.name} ${tag}</span>
-          <span class="card-id">#${item.id}</span>
+          ${renderAvatar(item, 44)}
+          <div class="card-meta">
+            <div class="card-name-row">
+              <span class="card-name">${item.name} ${tag}</span>
+              <span class="card-id">#${item.id}</span>
+            </div>
+            <div class="card-role">${item.role}</div>
+            <div class="card-dept">📍 ${item.dept}</div>
+          </div>
         </div>
-        <div class="card-role">${item.role}</div>
-        <div class="card-dept">📍 ${item.dept}</div>
         <div class="card-phone-wrap">
           <a class="phone-btn" href="tel:${item.tel}">
             📞 ${item.phone}
           </a>
-          ${delBtn}
+          <button class="edit-btn" onclick="editContact(${item.id})" title="Редактировать">✏️</button>
+          <button class="del-btn" onclick="deleteContact(${item.id})" title="Удалить">🗑</button>
         </div>
       </div>
     `;
@@ -986,4 +1229,3 @@ render();
 
 </body>
 </html>
-<!-- /gemini-code-1790620630343.html -->
