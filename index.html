@@ -239,17 +239,17 @@
       background: #1e293b;
       border: 1.5px solid var(--card-border);
       flex-shrink: 0;
-      transition: transform 0.15s ease, border-color 0.15s ease;
+      user-select: none;
     }
 
     .avatar-wrapper.clickable {
       cursor: pointer;
+      touch-action: manipulation;
     }
 
-    .avatar-wrapper.clickable:hover {
-      transform: scale(1.08);
+    .avatar-wrapper.clickable:active {
+      transform: scale(0.92);
       border-color: var(--accent);
-      box-shadow: 0 0 10px var(--accent-glow);
     }
 
     .avatar-img {
@@ -257,6 +257,7 @@
       height: 100%;
       object-fit: cover;
       display: block;
+      pointer-events: none;
     }
 
     .avatar-initials {
@@ -271,7 +272,7 @@
       color: var(--partner-accent);
     }
 
-    /* Карточки для мобильных */
+    /* Мобильные карточки */
     .cards-container {
       display: grid;
       grid-template-columns: 1fr;
@@ -395,7 +396,7 @@
       color: #f87171;
     }
 
-    /* Таблица для ПК */
+    /* Таблица ПК */
     .table-container {
       display: none;
       background: var(--card-bg);
@@ -487,7 +488,7 @@
       justify-content: flex-end;
     }
 
-    /* Модальное окно */
+    /* Модальное окно редактирования */
     .modal-overlay {
       display: none;
       position: fixed;
@@ -620,13 +621,13 @@
       cursor: pointer;
     }
 
-    /* Просмотр увеличенного фото (Lightbox) */
+    /* Модальное окно увеличения фото */
     .image-viewer-overlay {
       display: none;
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0, 0, 0, 0.88);
-      backdrop-filter: blur(6px);
+      background: rgba(0, 0, 0, 0.9);
+      backdrop-filter: blur(8px);
       z-index: 10000;
       justify-content: center;
       align-items: center;
@@ -636,8 +637,8 @@
 
     .image-viewer-content {
       position: relative;
-      max-width: 90vw;
-      max-height: 80vh;
+      max-width: 92vw;
+      max-height: 82vh;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -646,10 +647,10 @@
 
     .image-viewer-img {
       max-width: 100%;
-      max-height: 72vh;
+      max-height: 74vh;
       border-radius: 12px;
-      border: 2px solid rgba(255, 255, 255, 0.15);
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
       object-fit: contain;
     }
 
@@ -663,13 +664,13 @@
 
     .image-viewer-close {
       position: absolute;
-      top: -42px;
+      top: -46px;
       right: 0;
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.3);
       color: #fff;
-      width: 36px;
-      height: 36px;
+      width: 38px;
+      height: 38px;
       border-radius: 50%;
       display: flex;
       align-items: center;
@@ -752,7 +753,6 @@
     <div class="modal-title" id="modalTitle">Добавить контакт</div>
     <input type="hidden" id="editContactId">
 
-    <!-- Загрузка фото -->
     <div class="photo-upload-section">
       <div class="photo-preview" id="photoPreview">📷</div>
       <div class="photo-controls">
@@ -777,7 +777,7 @@
   </div>
 </div>
 
-<!-- Просмотр увеличенного фото -->
+<!-- Увеличение фото (Lightbox) -->
 <div class="image-viewer-overlay" id="imageViewer" onclick="closeImageViewer()">
   <div class="image-viewer-content" onclick="event.stopPropagation()">
     <button class="image-viewer-close" onclick="closeImageViewer()">✕</button>
@@ -787,7 +787,6 @@
 </div>
 
 <script>
-// Встроенная база 79 заводских сотрудников
 const baseStaffData = [
   { id: 1, name: "Антонников Алексей Владимирович", role: "директор", dept: "Управление (констр, технолог)", phone: "+375 (33) 307-30-74", tel: "+375333073074", category: "staff", photo: "" },
   { id: 2, name: "Арцыменя Владимир Викторович", role: "инженер по подготовке производства", dept: "Коммерческий документ", phone: "+375 (29) 724-04-09", tel: "+375297240409", category: "staff", photo: "" },
@@ -883,17 +882,25 @@ const defaultPartners = [
   }
 ];
 
-function getStoredContacts() {
+// Глобальное хранилище данных в памяти страницы
+let appContacts = [];
+
+function initData() {
   const local = localStorage.getItem('phonebook_all_contacts');
   if (local) {
-    try { return JSON.parse(local); } catch(e) {}
+    try {
+      appContacts = JSON.parse(local);
+    } catch(e) {
+      appContacts = [...baseStaffData, ...defaultPartners];
+    }
+  } else {
+    appContacts = [...baseStaffData, ...defaultPartners];
   }
-  return [...baseStaffData, ...defaultPartners];
 }
 
-function saveContactsToStorage(list) {
+function saveContactsToStorage() {
   try {
-    localStorage.setItem('phonebook_all_contacts', JSON.stringify(list));
+    localStorage.setItem('phonebook_all_contacts', JSON.stringify(appContacts));
   } catch(e) {
     alert("Память браузера переполнена! Рекомендуется удалить лишние большие фото.");
   }
@@ -921,27 +928,13 @@ function getInitials(name) {
   return (parts[0][0] + (parts[1] ? parts[1][0] : '')).toUpperCase();
 }
 
-function renderAvatar(item, size = 44) {
-  if (item.photo) {
-    return `
-      <div class="avatar-wrapper clickable" style="width: ${size}px; height: ${size}px;" onclick="openImageViewerById(${item.id})" title="Нажмите для увеличения">
-        <img src="${item.photo}" class="avatar-img" alt="${item.name}">
-      </div>
-    `;
-  }
-  return `
-    <div class="avatar-wrapper" style="width: ${size}px; height: ${size}px;">
-      <span class="avatar-initials">${getInitials(item.name)}</span>
-    </div>
-  `;
-}
-
-function openImageViewerById(id) {
-  const list = getStoredContacts();
-  const item = list.find(c => c.id === id);
+// Прямой вызов зума по сохраненному индексу контакта
+function zoomPhoto(contactId, event) {
+  if (event) event.stopPropagation();
+  const item = appContacts.find(c => String(c.id) === String(contactId));
   if (!item || !item.photo) return;
   viewerImg.src = item.photo;
-  viewerCaption.textContent = item.name;
+  viewerCaption.textContent = item.name || '';
   imageViewer.style.display = 'flex';
 }
 
@@ -957,6 +950,21 @@ window.addEventListener('keydown', (e) => {
     closeContactModal();
   }
 });
+
+function renderAvatar(item, size = 44) {
+  if (item.photo) {
+    return `
+      <div class="avatar-wrapper clickable" style="width: ${size}px; height: ${size}px;" onclick="zoomPhoto('${item.id}', event)" title="Нажмите для увеличения">
+        <img src="${item.photo}" class="avatar-img" alt="${item.name}">
+      </div>
+    `;
+  }
+  return `
+    <div class="avatar-wrapper" style="width: ${size}px; height: ${size}px;">
+      <span class="avatar-initials">${getInitials(item.name)}</span>
+    </div>
+  `;
+}
 
 function formatPhoneNumber(raw) {
   const d = raw.replace(/\D/g, '');
@@ -990,7 +998,7 @@ function switchCategory(cat) {
 }
 
 function populateDeptDropdown() {
-  const contacts = getStoredContacts().filter(c => {
+  const contacts = appContacts.filter(c => {
     if (activeCategory === 'staff') return c.category === 'staff';
     if (activeCategory === 'partners') return c.category === 'partner';
     return true;
@@ -1006,7 +1014,6 @@ function populateDeptDropdown() {
   });
 }
 
-// ПРЯМАЯ И БЕЗОПАСНАЯ ЗАГРУЗКА ФОТО
 function handlePhotoUpload(event) {
   const file = event.target.files && event.target.files[0];
   if (!file) return;
@@ -1016,19 +1023,18 @@ function handlePhotoUpload(event) {
 
   const reader = new FileReader();
   reader.onerror = function() {
-    alert("Ошибка при выборе файла.");
+    alert("Ошибка чтения файла.");
     preview.innerHTML = '📷';
   };
 
   reader.onload = function(e) {
     const tempImg = new Image();
     tempImg.onerror = function() {
-      alert("Не удалось декодировать изображение.");
+      alert("Не удалось загрузить изображение.");
       preview.innerHTML = '📷';
     };
     tempImg.onload = function() {
-      // Сжимаем пропорционально до легкого разрешения (до 200px)
-      const maxDim = 200;
+      const maxDim = 220;
       let w = tempImg.width;
       let h = tempImg.height;
 
@@ -1050,8 +1056,7 @@ function handlePhotoUpload(event) {
       const ctx = canvas.getContext('2d');
       ctx.drawImage(tempImg, 0, 0, w, h);
 
-      // Получаем чистый base64
-      const compressedData = canvas.toDataURL('image/jpeg', 0.82);
+      const compressedData = canvas.toDataURL('image/jpeg', 0.85);
       setModalPhoto(compressedData);
     };
     tempImg.src = e.target.result;
@@ -1091,9 +1096,9 @@ function openContactModal() {
   document.getElementById('contactName').focus();
 }
 
-function editContact(id) {
-  const list = getStoredContacts();
-  const item = list.find(c => c.id === id);
+function editContact(id, event) {
+  if (event) event.stopPropagation();
+  const item = appContacts.find(c => String(c.id) === String(id));
   if (!item) return;
 
   document.getElementById('modalTitle').textContent = 'Редактировать контакт';
@@ -1125,21 +1130,20 @@ function saveContact() {
   }
 
   const { display, tel } = formatPhoneNumber(rawPhone);
-  let list = getStoredContacts();
 
   if (editId) {
-    const idx = list.findIndex(c => c.id === Number(editId));
+    const idx = appContacts.findIndex(c => String(c.id) === String(editId));
     if (idx !== -1) {
-      list[idx].name = name;
-      list[idx].role = role;
-      list[idx].dept = dept;
-      list[idx].phone = display;
-      list[idx].tel = tel;
-      list[idx].photo = photo;
+      appContacts[idx].name = name;
+      appContacts[idx].role = role;
+      appContacts[idx].dept = dept;
+      appContacts[idx].phone = display;
+      appContacts[idx].tel = tel;
+      appContacts[idx].photo = photo;
     }
   } else {
-    const maxId = list.reduce((m, c) => Math.max(m, c.id), 0);
-    list.push({
+    const maxId = appContacts.reduce((m, c) => Math.max(m, Number(c.id) || 0), 0);
+    appContacts.push({
       id: maxId + 1,
       name,
       role,
@@ -1151,23 +1155,23 @@ function saveContact() {
     });
   }
 
-  saveContactsToStorage(list);
+  saveContactsToStorage();
   closeContactModal();
   populateDeptDropdown();
   render();
 }
 
-function deleteContact(id) {
+function deleteContact(id, event) {
+  if (event) event.stopPropagation();
   if (!confirm('Вы уверены, что хотите удалить этот контакт?')) return;
-  let list = getStoredContacts().filter(c => c.id !== id);
-  saveContactsToStorage(list);
+  appContacts = appContacts.filter(c => String(c.id) !== String(id));
+  saveContactsToStorage();
   populateDeptDropdown();
   render();
 }
 
 function exportData() {
-  const data = getStoredContacts();
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  const blob = new Blob([JSON.stringify(appContacts, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   const dateStr = new Date().toISOString().slice(0, 10);
@@ -1186,7 +1190,8 @@ function importData(event) {
     try {
       const imported = JSON.parse(e.target.result);
       if (!Array.isArray(imported)) throw new Error();
-      saveContactsToStorage(imported);
+      appContacts = imported;
+      saveContactsToStorage();
       alert(`База успешно загружена! Записей: ${imported.length}`);
       populateDeptDropdown();
       render();
@@ -1227,9 +1232,9 @@ function getFilteredData() {
   const selectedDept = deptSelect.value;
   const digitsOnly = query.replace(/\D/g, '');
 
-  let list = getStoredContacts().filter(c => {
-    if (activeCategory === 'staff' && c.category !== 'staff') return false;
-    if (activeCategory === 'partners' && c.category !== 'partner') return false;
+  let list = appContacts.filter(c => {
+    if (activeCategory === 'staff') return c.category === 'staff';
+    if (activeCategory === 'partners') return c.category === 'partner';
     return true;
   });
 
@@ -1252,8 +1257,8 @@ function getFilteredData() {
   const { key, asc } = currentSort;
   filtered.sort((a, b) => {
     let res = 0;
-    if (key === 'id') res = a.id - b.id;
-    else res = a[key].localeCompare(b[key], 'ru');
+    if (key === 'id') res = Number(a.id) - Number(b.id);
+    else res = String(a[key] || '').localeCompare(String(b[key] || ''), 'ru');
     return asc ? res : -res;
   });
 
@@ -1262,8 +1267,7 @@ function getFilteredData() {
 
 function render() {
   const list = getFilteredData();
-  const total = getStoredContacts().length;
-  countBadge.textContent = `Показано: ${list.length} из ${total}`;
+  countBadge.textContent = `Показано: ${list.length} из ${appContacts.length}`;
 
   if (list.length === 0) {
     emptyState.style.display = 'block';
@@ -1295,8 +1299,8 @@ function render() {
         </td>
         <td>
           <div class="table-actions">
-            <button onclick="editContact(${item.id})" style="background:none;border:none;cursor:pointer;font-size:1.1rem;" title="Редактировать">✏️</button>
-            <button onclick="deleteContact(${item.id})" style="background:none;border:none;cursor:pointer;font-size:1.1rem;" title="Удалить">🗑</button>
+            <button onclick="editContact('${item.id}', event)" style="background:none;border:none;cursor:pointer;font-size:1.1rem;" title="Редактировать">✏️</button>
+            <button onclick="deleteContact('${item.id}', event)" style="background:none;border:none;cursor:pointer;font-size:1.1rem;" title="Удалить">🗑</button>
           </div>
         </td>
       </tr>
@@ -1325,8 +1329,8 @@ function render() {
           <a class="phone-btn" href="tel:${item.tel}">
             📞 ${item.phone}
           </a>
-          <button class="edit-btn" onclick="editContact(${item.id})" title="Редактировать">✏️️</button>
-          <button class="del-btn" onclick="deleteContact(${item.id})" title="Удалить">🗑</button>
+          <button class="edit-btn" onclick="editContact('${item.id}', event)" title="Редактировать">✏️</button>
+          <button class="del-btn" onclick="deleteContact('${item.id}', event)" title="Удалить">🗑</button>
         </div>
       </div>
     `;
@@ -1347,6 +1351,7 @@ searchInput.addEventListener('input', () => {
 
 deptSelect.addEventListener('change', render);
 
+initData();
 populateDeptDropdown();
 updateSortIcons();
 render();
